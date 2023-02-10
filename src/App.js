@@ -1,23 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import Footer from "./Footer";
+import Products from "./Products";
 
 function App() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const skip = currentPage === 1 ? 0 : (currentPage - 1) * 10 - 1;
+        const productData = await fetch(
+          `https://dummyjson.com/products?limit=10&skip=${skip}`
+        );
+        const products = await productData.json();
+        setData(products.products);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchData();
+  }, [currentPage]);
+
+  const setPage = (pageNo) => {
+    setCurrentPage(pageNo);
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="container">
+        <Products products={data} />
+      </div>
+      <br />
+      <Footer currentPage={currentPage} setPage={setPage} />
     </div>
   );
 }
